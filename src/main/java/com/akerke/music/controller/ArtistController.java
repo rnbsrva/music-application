@@ -2,12 +2,17 @@ package com.akerke.music.controller;
 
 import com.akerke.music.dto.ArtistDTO;
 import com.akerke.music.service.ArtistService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+
+import static com.akerke.music.validate.Validator.validate;
 
 @RestController
 @RequestMapping("artist")
@@ -15,6 +20,7 @@ public class ArtistController {
 
     private final ArtistService artistService;
 
+    @Autowired
     public ArtistController(ArtistService artistService) {
         this.artistService = artistService;
     }
@@ -33,16 +39,21 @@ public class ArtistController {
 
     @PostMapping("new")
     ResponseEntity<?> save(
-            @RequestBody ArtistDTO artistDTO
+            @Valid
+            @RequestBody ArtistDTO artistDTO,
+            BindingResult bindingResult
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(artistService.save(artistDTO));
+        validate(bindingResult);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(artistService.save(artistDTO));
     }
 
     @DeleteMapping("{id}")
     ResponseEntity<?> delete(
             @PathVariable Long id
     ) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(artistService.delete(id));
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(artistService.delete(id));
     }
 
     @PatchMapping("{id}")
@@ -50,7 +61,9 @@ public class ArtistController {
             @PathVariable Long id,
             @RequestBody Map<String, Object> updatedFields
     ) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(artistService.updatePartially(id, updatedFields));
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(artistService.updatePartially(id, updatedFields));
     }
 
     @PutMapping("{id}")
@@ -58,7 +71,9 @@ public class ArtistController {
             @PathVariable Long id,
             @RequestBody ArtistDTO artistDTO
     ) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(artistService.update(id, artistDTO));
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(artistService.update(id, artistDTO));
     }
 
 }

@@ -43,7 +43,7 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public boolean delete(Long id) {
-        songRepository.deleteById(id);
+        songRepository.delete(this.getById(id));
         return true;
     }
 
@@ -61,17 +61,14 @@ public class SongServiceImpl implements SongService {
     @Override
     public Song updatePartially(Long id, Map<String, Object> updatedFields) {
         Song song = getById(id);
-        for(Map.Entry<String, Object> entry : updatedFields.entrySet()) {
-            String field = entry.getKey();
-            Object value = entry.getValue();
+        updatedFields.forEach((field, value) -> {
             switch (field) {
                 case "title" -> song.setTitle((String) value);
                 case "genre" ->  song.setGenre(Genre.valueOf((String) value));
                 case "duration" -> song.setDuration((Long) value);
                 case "releaseYear" -> song.setReleaseYear((Year) value);
             }
-        }
-
+        });
         return songRepository.save(song);
     }
 }

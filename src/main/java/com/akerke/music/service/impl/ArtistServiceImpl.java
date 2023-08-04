@@ -40,7 +40,7 @@ public class ArtistServiceImpl implements ArtistService {
                 SongDTO songDTO = new SongDTO(song.getTitle(), song.getDuration(), song.getReleaseYear(), song.getGenre(), song.getArtist().getId());
                 songDTOS.add(songDTO);
             }
-            ArtistDTO artistDTO = new ArtistDTO(artist.getId(),
+            ArtistDTO artistDTO = new ArtistDTO(
                     artist.getName(),
                     artist.getSurname(),
                     artist.getCountry(),
@@ -65,7 +65,7 @@ public class ArtistServiceImpl implements ArtistService {
 
     @Override
     public boolean delete(Long id) {
-        artistRepository.deleteById(id);
+        artistRepository.delete(this.getById(id));
         return true;
     }
 
@@ -84,16 +84,14 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     public Artist updatePartially(Long id, Map<String, Object> updatedFields) {
         Artist artist = getById(id);
-        for(Map.Entry<String, Object> entry : updatedFields.entrySet()) {
-            String field = entry.getKey();
-            Object value = entry.getValue();
+        updatedFields.forEach((field, value)->{
             switch (field) {
                 case "name" -> artist.setName((String) value);
                 case "surname" ->  artist.setSurname((String) value);
                 case "country" -> artist.setCountry((String) value);
                 case "yearsActive" -> artist.setYearsActive((Integer) value);
             }
-        }
+        });
         return artist;
     }
 }
