@@ -1,74 +1,64 @@
 package com.akerke.music.service.impl;
 
 import com.akerke.music.constants.Genre;
-import com.akerke.music.dto.SongDTO;
-import com.akerke.music.exception.ArtistNotFoundException;
+import com.akerke.music.dto.SongResponseDTO;
+import com.akerke.music.dto.request.SongDTO;
 import com.akerke.music.exception.SongNotFoundException;
+import com.akerke.music.mapper.SongMapper;
 import com.akerke.music.model.Song;
 import com.akerke.music.repository.ArtistRepository;
 import com.akerke.music.repository.SongRepository;
 import com.akerke.music.service.SongService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
 import java.util.List;
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SongServiceImpl implements SongService {
 
     private final SongRepository songRepository;
     private final ArtistRepository artistRepository;
+    private final SongMapper songMapper;
 
-    public SongServiceImpl(SongRepository songRepository, ArtistRepository artistRepository) {
-        this.songRepository = songRepository;
-        this.artistRepository = artistRepository;
+    @Override
+    public List<SongResponseDTO> getAll() {
+        return songRepository.findAll().stream().map(songMapper::toSongResponseDTO).toList();
     }
 
     @Override
-    public List<Song> getAll() {
-        return songRepository.findAll();
+    public SongResponseDTO getById(Long id) {
+        return songRepository.findById(id).map(songMapper::toSongResponseDTO).orElseThrow(() -> new SongNotFoundException(id));
     }
 
     @Override
-    public Song getById(Long id) {
-        return songRepository.findById(id).orElseThrow(() -> new SongNotFoundException(id));
-    }
-
-    @Override
-    public Song save(SongDTO songDTO) {
-        Song song = new Song(songDTO.title(), songDTO.duration(), songDTO.releaseYear(), songDTO.genre(), artistRepository.findById(songDTO.artistId()).orElse(null));
-        return songRepository.save(song);
+    public SongResponseDTO save(SongDTO songDTO) {
+        Song song = songMapper.toModel(songDTO, artistRepository.findById(songDTO.artistId()).orElse(null));
+        songRepository.save(song);
+        return songMapper.toSongResponseDTO(song);
     }
 
     @Override
     public boolean delete(Long id) {
-        songRepository.delete(this.getById(id));
+        songRepository.deleteById(id);
         return true;
     }
 
     @Override
-    public Song update(Long id, SongDTO songDTO) {
-        Song song = getById(id);
-        song.setTitle(songDTO.title());
-        song.setGenre(songDTO.genre());
-        song.setDuration(songDTO.duration());
-        song.setReleaseYear(songDTO.releaseYear());
-
-        return songRepository.save(song);
+    public SongResponseDTO update(Long id, SongDTO songDTO) {
+        Song song = songMapper.toModel(songDTO, artistRepository.findById(songDTO.artistId()).orElse(null));
+        songRepository.save(song);
+        return songMapper.toSongResponseDTO(song);
     }
 
     @Override
-    public Song updatePartially(Long id, Map<String, Object> updatedFields) {
-        Song song = getById(id);
-        updatedFields.forEach((field, value) -> {
-            switch (field) {
-                case "title" -> song.setTitle((String) value);
-                case "genre" ->  song.setGenre(Genre.valueOf((String) value));
-                case "duration" -> song.setDuration((Long) value);
-                case "releaseYear" -> song.setReleaseYear((Year) value);
-            }
-        });
-        return songRepository.save(song);
+    public SongResponseDTO updatePartially(Long id, SongDTO songDTO) {
+        SongResponseDTO songResponseDTO = getById(id);
+        Song song = songMapper.toModelFromResponseDTO(songResponseDTO, artistRepository.findById(songResponseDTO.artistId()).orElse(null));
+        songMapper.update(songDTO, song);
+        songRepository.save(song);
+        return this.getById(id);
     }
 }

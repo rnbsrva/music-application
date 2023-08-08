@@ -1,10 +1,15 @@
 package com.akerke.music.model;
 
 import com.akerke.music.constants.Genre;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Year;
 
+@Getter
+@Setter
 @Entity
 public class Song {
     @Id
@@ -17,9 +22,19 @@ public class Song {
     @Column(name = "genre")
     private Genre genre;
     @ManyToOne
+    @JsonIgnore
     private Artist artist;
 
     public Song(String title, Long duration, Year releaseYear, Genre genre, Artist artist) {
+        this.title = title;
+        this.duration = duration;
+        this.releaseYear = releaseYear;
+        this.genre = genre;
+        this.artist = artist;
+    }
+
+    public Song(Long id, String title, Long duration, Year releaseYear, Genre genre, Artist artist) {
+        this.id = id;
         this.title = title;
         this.duration = duration;
         this.releaseYear = releaseYear;
@@ -31,52 +46,5 @@ public class Song {
 
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Long duration) {
-        this.duration = duration;
-    }
-
-    public Year getReleaseYear() {
-        return releaseYear;
-    }
-
-    public void setReleaseYear(Year releaseYear) {
-        this.releaseYear = releaseYear;
-    }
-
-    public Artist getArtist() {
-        return artist;
-    }
-
-    public void setArtist(Artist artist) {
-        this.artist = artist;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Genre getGenre() {
-        return genre;
-    }
-
-    public void setGenre(Genre genre) {
-        this.genre = genre;
-    }
 
 }

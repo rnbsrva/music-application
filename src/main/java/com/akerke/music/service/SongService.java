@@ -1,22 +1,21 @@
 package com.akerke.music.service;
 
-import com.akerke.music.dto.SongDTO;
-import com.akerke.music.model.Song;
+import com.akerke.music.dto.SongResponseDTO;
+import com.akerke.music.dto.request.SongDTO;
 
 import java.util.List;
-import java.util.Map;
 
 public interface SongService {
 
-    List<Song> getAll();
+    List<SongResponseDTO> getAll();
 
-    Song getById(Long id);
+    SongResponseDTO getById(Long id);
 
-    Song save(SongDTO songDTO);
+    SongResponseDTO save(SongDTO songDTO);
 
     boolean delete(Long id);
 
-    Song update(Long id, SongDTO songDTO);
+    SongResponseDTO update(Long id, SongDTO songDTO);
 
-    Song updatePartially(Long id, Map<String, Object> updatedFields);
+    SongResponseDTO updatePartially(Long id, SongDTO songDTO);
 }

@@ -22,7 +22,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
     // FIXME: 8/5/2023    methooooooooooooooooood
 
-
     @ExceptionHandler(SongNotFoundException.class)
     ProblemDetail handleSongNotFoundException(SongNotFoundException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());

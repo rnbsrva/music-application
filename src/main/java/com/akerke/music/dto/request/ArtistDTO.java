@@ -1,4 +1,4 @@
-package com.akerke.music.dto;
+package com.akerke.music.dto.request;
 
 
 import jakarta.validation.constraints.*;
@@ -6,11 +6,11 @@ import jakarta.validation.constraints.*;
 import java.util.List;
 
 public record ArtistDTO(
-         @NotBlank @Max(value = 25) @Min(value = 3)
+         @NotBlank
          String name,
-        @NotBlank @Max(value = 25) @Min(value = 3)
+        @NotBlank
          String surname,
-        @NotBlank(message = "country can not be blanK") @NotEmpty @Max(value = 50) @Min(value = 2)
+        @NotBlank(message = "country can not be blanK")
          String country,
         @NotNull
          Integer yearsActive,

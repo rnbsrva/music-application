@@ -1,14 +1,17 @@
 package com.akerke.music.service.impl;
 
-import com.akerke.music.dto.ArtistDTO;
-import com.akerke.music.dto.SongDTO;
+import com.akerke.music.dto.ArtistResponseDTO;
+import com.akerke.music.dto.SongResponseDTO;
+import com.akerke.music.dto.request.ArtistDTO;
 import com.akerke.music.exception.ArtistNotFoundException;
+import com.akerke.music.mapper.ArtistMapper;
+import com.akerke.music.mapper.SongMapper;
 import com.akerke.music.model.Artist;
 import com.akerke.music.model.Song;
 import com.akerke.music.repository.ArtistRepository;
 import com.akerke.music.repository.SongRepository;
 import com.akerke.music.service.ArtistService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,74 +19,58 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class ArtistServiceImpl implements ArtistService {
 
     private final ArtistRepository artistRepository;
     private final SongRepository songRepository;
-
-    @Autowired
-    public ArtistServiceImpl(ArtistRepository artistRepository, SongRepository songRepository) {
-        this.artistRepository = artistRepository;
-        this.songRepository = songRepository;
-    }
+    private final ArtistMapper artistMapper;
+    private final SongMapper songMapper;
 
     @Override
-    public List<ArtistDTO> getAll() {
+    public List<ArtistResponseDTO> getAll() {
         List<Artist> artists = artistRepository.findAll();
         List<Song> songs = songRepository.findAll();
-        List<ArtistDTO> artistDTOS = new ArrayList<>();
+        List<ArtistResponseDTO> artistDTOS = new ArrayList<>();
         for (Artist artist : artists){
             songs = songs.stream()
                     .filter(song -> song.getArtist().getId().equals(artist.getId())).toList();
-            List<SongDTO> songDTOS = new ArrayList<>();
-            for (Song song: songs){
-                SongDTO songDTO = new SongDTO(song.getTitle(), song.getDuration(), song.getReleaseYear(), song.getGenre(), song.getArtist().getId());
-                songDTOS.add(songDTO);
-            }
-            ArtistDTO artistDTO = new ArtistDTO(
-                    artist.getName(),
-                    artist.getSurname(),
-                    artist.getCountry(),
-                    artist.getYearsActive(),
-                    songDTOS);
-            artistDTOS.add(artistDTO);
+            List<SongResponseDTO> songDTOS = songs.stream().map(songMapper::toSongResponseDTO).toList();
+            artistDTOS.add(artistMapper.toArtistResponseDTO(artist, songDTOS));
         }
         return artistDTOS;
     }
 
     @Override
-    public Artist getById(Long id) {
-        return artistRepository.findById(id).orElseThrow(() -> new ArtistNotFoundException(id));
+    public ArtistResponseDTO getById(Long id) {
+        Artist artist = artistRepository.findById(id).orElseThrow(() -> new ArtistNotFoundException(id));
+        return artistMapper
+                .toArtistResponseDTO(artist, artist.getSongs().stream().map(songMapper::toSongResponseDTO).toList());
     }
 
     @Override
-    public Artist save(ArtistDTO artistDTO) {
-        Artist artist = new Artist(artistDTO.name(), artistDTO.surname(), artistDTO.country(), artistDTO.yearsActive(), new ArrayList<>());
-
-        return artistRepository.save(artist);
+    public ArtistResponseDTO save(ArtistDTO artistDTO) {
+        Artist artist = artistMapper.toModel(artistDTO);
+        artistRepository.save(artist);
+        return artistMapper.toArtistResponseDTO(artist, new ArrayList<>());
     }
 
     @Override
     public boolean delete(Long id) {
-        artistRepository.delete(this.getById(id));
+        artistRepository.deleteById(id);
         return true;
     }
 
     @Override
-    public Artist update(Long id, ArtistDTO artistDTO) {
-        Artist artist = getById(id);
-        artist.setName(artistDTO.name());
-        artist.setSurname(artistDTO.surname());
-        artist.setCountry(artistDTO.country());
-        artist.setYearsActive(artistDTO.yearsActive());
-
-        artistRepository.save(artist);
-        return artist;
+    public ArtistResponseDTO update(Long id, ArtistDTO artistDTO) {
+        artistRepository.save(artistMapper.toModel(artistDTO));
+        return getById(id);
     }
 
     @Override
-    public Artist updatePartially(Long id, Map<String, Object> updatedFields) {
-        Artist artist = getById(id);
+    public ArtistResponseDTO updatePartially(Long id, Map<String, Object> updatedFields) {
+        ArtistResponseDTO artistResponseDTO = getById(id);
+        Artist artist = artistMapper.toModelFromArtistResponseDTO(artistResponseDTO, new ArrayList<>());
         updatedFields.forEach((field, value)->{
             switch (field) {
                 case "name" -> artist.setName((String) value);
@@ -92,6 +79,7 @@ public class ArtistServiceImpl implements ArtistService {
                 case "yearsActive" -> artist.setYearsActive((Integer) value);
             }
         });
-        return artist;
+        artistRepository.save(artist);
+        return this.getById(id);
     }
 }
