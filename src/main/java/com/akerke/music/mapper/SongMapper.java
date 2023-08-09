@@ -4,12 +4,11 @@ import com.akerke.music.dto.SongResponseDTO;
 import com.akerke.music.dto.request.SongDTO;
 import com.akerke.music.model.Artist;
 import com.akerke.music.model.Song;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.*;
 
-@Mapper(imports = Artist.class, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+@Mapper(imports = Artist.class,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface SongMapper {
 
     @Mapping(target = "artist", ignore = true)

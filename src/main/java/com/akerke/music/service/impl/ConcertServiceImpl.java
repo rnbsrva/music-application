@@ -1,7 +1,8 @@
 package com.akerke.music.service.impl;
 
-import com.akerke.music.dto.ConcertDTO;
+import com.akerke.music.dto.request.ConcertDTO;
 import com.akerke.music.exception.ArtistNotFoundException;
+import com.akerke.music.exception.ConcertNotFoundException;
 import com.akerke.music.mapper.ConcertMapper;
 import com.akerke.music.model.Artist;
 import com.akerke.music.model.Concert;
@@ -28,7 +29,7 @@ public class ConcertServiceImpl implements ConcertService {
 
     @Override
     public Concert getById(Long id) {
-        return concertRepository.findById(id).orElse(null);
+        return concertRepository.findById(id).orElseThrow(()->new ConcertNotFoundException(id));
     }
 
     @Override
@@ -49,8 +50,20 @@ public class ConcertServiceImpl implements ConcertService {
         return concertRepository.save(concert);
     }
 
-    public Artist findById(Long id){
-        return artistRepository.findById(id).orElseThrow(()->new ArtistNotFoundException(id));
+    @Override
+    public Concert deleteArtist(Long id, Long artistId) {
+        Concert concert = getById(id);
+        concert.getArtists().remove(artistRepository.findById(artistId).orElseThrow(() -> new ArtistNotFoundException(id)));
+        return concertRepository.save(concert);
+    }
+
+    @Override
+    public Concert addArtist(Long id, Long artistId) {
+        Concert concert = getById(id);
+        Artist artist = artistRepository.findById(artistId).orElseThrow(() -> new ArtistNotFoundException(id));
+        if (!concert.getArtists().contains(artist))
+            concert.getArtists().add(artist);
+        return concertRepository.save(concert);
     }
 
 }

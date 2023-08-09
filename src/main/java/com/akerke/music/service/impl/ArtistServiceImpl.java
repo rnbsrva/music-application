@@ -68,17 +68,10 @@ public class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public ArtistResponseDTO updatePartially(Long id, Map<String, Object> updatedFields) {
+    public ArtistResponseDTO updatePartially(Long id, ArtistDTO artistDTO) {
         ArtistResponseDTO artistResponseDTO = getById(id);
         Artist artist = artistMapper.toModelFromArtistResponseDTO(artistResponseDTO, new ArrayList<>());
-        updatedFields.forEach((field, value)->{
-            switch (field) {
-                case "name" -> artist.setName((String) value);
-                case "surname" ->  artist.setSurname((String) value);
-                case "country" -> artist.setCountry((String) value);
-                case "yearsActive" -> artist.setYearsActive((Integer) value);
-            }
-        });
+        artistMapper.update(artistDTO, artist);
         artistRepository.save(artist);
         return this.getById(id);
     }

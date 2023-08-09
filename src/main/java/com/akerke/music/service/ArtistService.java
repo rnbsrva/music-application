@@ -18,5 +18,5 @@ public interface ArtistService {
 
     ArtistResponseDTO update(Long id, ArtistDTO artistDTO);
 
-    ArtistResponseDTO updatePartially(Long id, Map<String, Object> updatedFields);
+    ArtistResponseDTO updatePartially(Long id, ArtistDTO artistDTO);
 }

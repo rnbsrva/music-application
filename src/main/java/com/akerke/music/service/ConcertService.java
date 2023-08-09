@@ -1,6 +1,6 @@
 package com.akerke.music.service;
 
-import com.akerke.music.dto.ConcertDTO;
+import com.akerke.music.dto.request.ConcertDTO;
 import com.akerke.music.model.Concert;
 
 import java.util.List;
@@ -16,5 +16,8 @@ public interface ConcertService {
     boolean delete(Long id);
 
     Concert update(Long id, ConcertDTO songDTO);
+
+    Concert deleteArtist(Long id, Long artistId);
+    Concert addArtist(Long id, Long artistId);
 
 }

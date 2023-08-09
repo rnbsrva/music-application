@@ -5,12 +5,12 @@ import com.akerke.music.dto.request.ArtistDTO;
 import com.akerke.music.dto.ArtistResponseDTO;
 import com.akerke.music.model.Artist;
 import com.akerke.music.model.Song;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface ArtistMapper {
 
     @Mapping(target = "songs", ignore = true)
@@ -25,5 +25,6 @@ public interface ArtistMapper {
     @Mapping(target = "songs", expression = "java(songs)")
     Artist toModelFromArtistResponseDTO(ArtistResponseDTO artistResponseDTO, List<Song> songs);
 
+    void update (ArtistDTO songDTO, @MappingTarget Artist artist);
 
 }

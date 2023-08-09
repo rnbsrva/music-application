@@ -1,8 +1,6 @@
 package com.akerke.music.controller;
 
-import com.akerke.music.dto.ConcertDTO;
-import com.akerke.music.dto.request.ArtistDTO;
-import com.akerke.music.dto.request.SongDTO;
+import com.akerke.music.dto.request.ConcertDTO;
 import com.akerke.music.service.ConcertService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +32,11 @@ public class ConcertController {
 
     @PostMapping("new")
     ResponseEntity<?> save(
-            @RequestBody ConcertDTO concertDTO
+            @Valid
+            @RequestBody ConcertDTO concertDTO,
+            BindingResult bindingResult
     ) {
+        validate(bindingResult);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(concertService.save(concertDTO));
     }
@@ -52,11 +53,32 @@ public class ConcertController {
             method={RequestMethod.PATCH,RequestMethod.PUT})
     ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestBody ConcertDTO concertDTO
+            @Valid
+            @RequestBody ConcertDTO concertDTO,
+            BindingResult bindingResult
     ) {
+        validate(bindingResult);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(concertService.update(id, concertDTO));
     }
 
 
+    @DeleteMapping("{id}/delete/{artist_id}")
+    ResponseEntity<?> deleteArtist (
+            @PathVariable Long id,
+            @PathVariable Long artist_id
+    ) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(concertService.deleteArtist(id, artist_id));
+
+    }
+
+    @PatchMapping("{id}/add/{artist_id}")
+    ResponseEntity<?> addArtist (
+            @PathVariable Long id,
+            @PathVariable Long artist_id
+
+    ) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(concertService.addArtist(id, artist_id));
+
+    }
 
 }

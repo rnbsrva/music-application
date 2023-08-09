@@ -58,11 +58,11 @@ public class ArtistController {
     @PatchMapping("{id}")
     ResponseEntity<?> updatePartially(
             @PathVariable Long id,
-            @RequestBody Map<String, Object> updatedFields
+            @RequestBody ArtistDTO artistDTO
     ) {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(artistService.updatePartially(id, updatedFields));
+                .body(artistService.updatePartially(id, artistDTO));
     }
 
     @PutMapping("{id}")
